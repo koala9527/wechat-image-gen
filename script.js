@@ -8,6 +8,17 @@ const TOP_EDITABLE_HEIGHT = 96;
 const BOTTOM_EDITABLE_HEIGHT = 72;
 const NON_EDITABLE_HEIGHT = CANVAS_HEIGHT - TOP_EDITABLE_HEIGHT - BOTTOM_EDITABLE_HEIGHT;
 
+// Image transform state
+let imageState = {
+    scale: 1,
+    x: 0,
+    y: 0,
+    dragging: false,
+    lastX: 0,
+    lastY: 0,
+    image: null
+};
+
 // DOM Elements
 const promptInput = document.getElementById('prompt');
 const generateButton = document.getElementById('generate');
@@ -30,6 +41,96 @@ promptInput.addEventListener('keypress', function(event) {
         generateImage();
     }
 });
+
+// Canvas interaction events
+croppedCanvas.addEventListener('mousedown', startDragging);
+croppedCanvas.addEventListener('mousemove', drag);
+croppedCanvas.addEventListener('mouseup', stopDragging);
+croppedCanvas.addEventListener('mouseleave', stopDragging);
+croppedCanvas.addEventListener('wheel', handleZoom);
+
+function startDragging(e) {
+    const rect = croppedCanvas.getBoundingClientRect();
+    imageState.dragging = true;
+    imageState.lastX = e.clientX - rect.left;
+    imageState.lastY = e.clientY - rect.top;
+}
+
+function drag(e) {
+    if (!imageState.dragging) return;
+    
+    const rect = croppedCanvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    imageState.x += x - imageState.lastX;
+    imageState.y += y - imageState.lastY;
+    
+    imageState.lastX = x;
+    imageState.lastY = y;
+    
+    drawImage();
+}
+
+function stopDragging() {
+    imageState.dragging = false;
+}
+
+function handleZoom(e) {
+    e.preventDefault();
+    
+    const rect = croppedCanvas.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    
+    // Convert mouse position to canvas space
+    const canvasX = mouseX * (CANVAS_WIDTH / rect.width);
+    const canvasY = mouseY * (CANVAS_HEIGHT / rect.height);
+    
+    // Calculate zoom
+    const delta = e.deltaY > 0 ? 0.9 : 1.1;
+    const newScale = imageState.scale * delta;
+    
+    // Limit zoom level
+    if (newScale >= 0.5 && newScale <= 3) {
+        // Adjust position to zoom towards mouse position
+        imageState.x = canvasX - (canvasX - imageState.x) * delta;
+        imageState.y = canvasY - (canvasY - imageState.y) * delta;
+        imageState.scale = newScale;
+        
+        drawImage();
+    }
+}
+
+function drawImage() {
+    if (!imageState.image) return;
+    
+    const ctx = croppedCanvas.getContext('2d');
+    ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    
+    // Save the current context state
+    ctx.save();
+    
+    // Apply transformations
+    ctx.translate(imageState.x, imageState.y);
+    ctx.scale(imageState.scale, imageState.scale);
+    
+    // Calculate scaled dimensions
+    const scaledWidth = CANVAS_WIDTH;
+    const scaledHeight = imageState.image.height * (CANVAS_WIDTH / imageState.image.width);
+    
+    // Draw the image centered
+    const x = -scaledWidth / 2;
+    const y = -(scaledHeight / 2);
+    ctx.drawImage(imageState.image, x, y, scaledWidth, scaledHeight);
+    
+    // Restore the context state
+    ctx.restore();
+    
+    // Draw non-editable area overlay
+    ctx.fillStyle = 'rgba(255, 192, 203, 0.3)';
+    ctx.fillRect(0, TOP_EDITABLE_HEIGHT, CANVAS_WIDTH, NON_EDITABLE_HEIGHT);
+}
 
 async function generateImage() {
     const prompt = promptInput.value.trim();
@@ -85,30 +186,16 @@ async function loadAndProcessImage(imageUrl) {
         const img = new Image();
         
         img.onload = () => {
-            // Display original image
-            generatedImage.src = img.src;
+            // Store the image for later use
+            imageState.image = img;
             
-            // Set canvas dimensions
-            croppedCanvas.width = CANVAS_WIDTH;
-            croppedCanvas.height = CANVAS_HEIGHT;
+            // Reset transform state
+            imageState.scale = 1;
+            imageState.x = CANVAS_WIDTH / 2;
+            imageState.y = CANVAS_HEIGHT / 2;
             
-            const ctx = croppedCanvas.getContext('2d');
-            ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-            // Calculate scaling based on width
-            const scale = CANVAS_WIDTH / img.width;
-            const scaledWidth = CANVAS_WIDTH;
-            const scaledHeight = img.height * scale;
-            
-            // Calculate vertical position to center the image
-            const y = (CANVAS_HEIGHT - scaledHeight) / 2;
-            
-            // Draw the image
-            ctx.drawImage(img, 0, y, scaledWidth, scaledHeight);
-
-            // Create gradient for non-editable area visualization
-            ctx.fillStyle = 'rgba(255, 192, 203, 0.3)'; // Light pink with transparency
-            ctx.fillRect(0, TOP_EDITABLE_HEIGHT, CANVAS_WIDTH, NON_EDITABLE_HEIGHT);
+            // Initial draw
+            drawImage();
             
             resolve();
         };
@@ -128,7 +215,7 @@ function downloadImage() {
     tempCanvas.height = CANVAS_HEIGHT;
     const ctx = tempCanvas.getContext('2d');
     
-    // Copy the image from the display canvas
+    // Copy the current canvas state
     ctx.drawImage(croppedCanvas, 0, 0);
     
     // Clear the non-editable area to make it transparent

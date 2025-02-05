@@ -29,13 +29,20 @@
             
             <div class="preview-container" style="display: none;">
                 <h2>生成结果</h2>
-                <div class="image-preview">
-                    <img id="generated-image" src="" alt="生成的图片">
-                </div>
-                <div class="cropped-preview">
-                    <h3>裁剪预览</h3>
-                    <canvas id="cropped-canvas" width="480" height="384"></canvas>
-                    <button id="download">下载挂件</button>
+                <div class="preview-grid">
+                    <div class="preview-item">
+                        <h3>原始图片</h3>
+                        <div class="image-preview">
+                            <img id="generated-image" src="" alt="生成的图片">
+                        </div>
+                    </div>
+                    <div class="preview-item">
+                        <h3>裁剪预览 <span class="preview-tip">(可拖拽调整位置，滚轮缩放大小)</span></h3>
+                        <div class="cropped-preview">
+                            <canvas id="cropped-canvas" width="480" height="384"></canvas>
+                            <button id="download">下载挂件</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
