@@ -1,0 +1,11 @@
+# Environment variables
+.env
+
+# Temporary files
+temp/
+__pycache__/
+*.pyc
+
+# IDE files
+.vscode/
+.idea/ 
