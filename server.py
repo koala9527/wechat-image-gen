@@ -10,6 +10,7 @@ from MODNet_entry import get_model, infer2
 import base64
 import time
 from dotenv import load_dotenv
+import random
 
 # Load environment variables from .env file
 load_dotenv()
@@ -20,10 +21,16 @@ if not API_KEY:
     raise ValueError("API_KEY not found in environment variables")
 
 # API Configuration
+# API_CONFIG = {
+#     'model': 'black-forest-labs/FLUX.1-dev',
+#     'image_size': '1024x1024',
+#     'num_inference_steps': 25,
+#     'prompt_enhancement': True
+# }
+
 API_CONFIG = {
-    'model': 'black-forest-labs/FLUX.1-dev',
+   'model': 'black-forest-labs/FLUX.1-schnell',
     'image_size': '1024x1024',
-    'num_inference_steps': 25,
     'prompt_enhancement': True
 }
 
@@ -94,7 +101,7 @@ def generate_image():
             **API_CONFIG,  # Spread fixed configuration
             'prompt': data.get('prompt')  # Add user's prompt
         }
-
+        # print(request_body)
         req = urllib.request.Request(
             'https://api.siliconflow.cn/v1/images/generations',
             data=json.dumps(request_body).encode('utf-8'),
