@@ -18,3 +18,10 @@ pip install git+https://github.com/RimoChan/modnet-entry.git
 效果展示
 
 ![效果展示](show.png)
+
+
+###  硅基流动注册
+
+可以的话注册使用我的链接：https://cloud.siliconflow.cn/i/5ObwfSCD
+
+可获赠2000万Tokens（14元平台配额）
