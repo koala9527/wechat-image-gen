@@ -9,6 +9,7 @@ services:
       - "8106:8000"
     volumes:
       - ./temp:/app/temp
+      - ./.env:/app/.env
     environment:
       - PYTHONUNBUFFERED=1
       - PYTHONDONTWRITEBYTECODE=1
