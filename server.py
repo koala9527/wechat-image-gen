@@ -162,4 +162,4 @@ def proxy_image():
 if __name__ == '__main__':
     print(f'Server running at http://localhost:8000')
     print(f'Static files served from: {current_dir}')
-    app.run(port=8000, debug=True)
+    app.run(host='0.0.0.0', port=8000, debug=True)
