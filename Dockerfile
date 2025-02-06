@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y git && \
 
 # 复制依赖文件
 COPY requirements.txt .
-COPY .env .
+COPY .env.example .env
 
 # 安装依赖
 RUN pip install --upgrade pip && \
