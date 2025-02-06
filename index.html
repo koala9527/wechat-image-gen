@@ -3,12 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>气泡挂件生成器</title>
+    <title>微信红包气泡挂件生成器</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>气泡挂件生成器</h1>
+        <h1>微信红包气泡挂件生成器</h1>
+        <div class="intro">
+            <p>生成自定义的微信红包气泡挂件图片，支持自动抠图和位置调整。</p>
+        </div>
+
+        <div class="example-container">
+            <h3>制作规范</h3>
+            <div class="example-image-container">
+                <img src="example.png" alt="规范示例" class="example-image">
+            </div>
+        </div>
+        
         <div class="generator-form">
             <input type="text" id="prompt" placeholder="请输入你想要生成的图片描述..." required>
             <div class="switch-container">
@@ -20,7 +31,7 @@
             </div>
             <button id="generate" type="button">生成图片</button>
         </div>
-        
+
         <div class="result-container">
             <div class="loading" style="display: none;">
                 生成中<span class="dots"></span>

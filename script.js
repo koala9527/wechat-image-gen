@@ -26,9 +26,13 @@ const mattingSwitch = document.getElementById('matting-switch');
 const loadingDiv = document.querySelector('.loading');
 const errorDiv = document.querySelector('.error');
 const previewContainer = document.querySelector('.preview-container');
+const exampleContainer = document.querySelector('.example-container');
 const generatedImage = document.getElementById('generated-image');
 const croppedCanvas = document.getElementById('cropped-canvas');
 const downloadButton = document.getElementById('download');
+
+// Show example image initially
+exampleContainer.style.display = 'block';
 
 // Event Listeners
 generateButton.addEventListener('click', generateImage);
@@ -37,7 +41,7 @@ downloadButton.addEventListener('click', downloadImage);
 // Add enter key listener
 promptInput.addEventListener('keypress', function(event) {
     if (event.key === 'Enter') {
-        event.preventDefault(); // Prevent default form submission
+        event.preventDefault();
         generateImage();
     }
 });
@@ -141,6 +145,8 @@ async function generateImage() {
 
     showLoading(true);
     hideError();
+    // Hide example when generating
+    exampleContainer.style.display = 'none';
 
     try {
         const response = await fetch('/proxy/generate', {
@@ -173,9 +179,13 @@ async function generateImage() {
             previewContainer.style.display = 'block';
         } else {
             throw new Error('生成图片失败');
+            // Show example if generation fails
+            exampleContainer.style.display = 'block';
         }
     } catch (error) {
         showError(error.message || '生成图片时出错');
+        // Show example if generation fails
+        exampleContainer.style.display = 'block';
     } finally {
         showLoading(false);
     }
